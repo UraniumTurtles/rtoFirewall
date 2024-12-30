@@ -1,3 +1,32 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/rtoConfig
+- name: local object 
+  fortinet.fortios.fortios_firewall_address:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    firewall_address:
+      name: "internal"
+      type: "ipmask"
+      subnet: "{{lan}}"
+
+- name: vpn address objects
+  fortinet.fortios.fortios_firewall_address:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    firewall_address:
+      name: "{{item.name}}"
+      type: "{{item.type}}"
+      subnet: "{{item.address}}"
+      allow_routing: "enable"
+  with_items: "{{addrObject}}"
+
+- name: address groups
+  fortinet.fortios.fortios_firewall_addrgrp:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    firewall_addrgrp:
+      name: "{{item.name}}"
+      member: 
+        - name: "{{item.member}}"
+  with_items: "{{addrGrp}}"

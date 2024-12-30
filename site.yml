@@ -1,1 +1,10 @@
-
+---
+- name: config RTO firewall
+  hosts: test
+  gather_facts: false 
+  connection: httpapi
+  collections: fortinet.fortios
+  vars_files:
+    - group_vars/common.yml
+  roles:
+    - rtoConfig

@@ -1,3 +1,17 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for roles/rtoConfig
+#hightouch0: "172.19.0.0/16"
+#RSSSHOII: "172.25.0.0/16"
+addrObject:
+  - {name: "HighTouch0", address: "172.19.0.0/16", type: "ipmask"}
+  - {name: "RSSSHOII", address: "172.25.0.0/16", type: "ipmask"}
+  - {name: "ddc1-fw01", address: "172.28.0.0/29", type: "ipmask"}
+
+addrGrp:
+  - {name: "High Touch 0_local", member: "internal"}
+  - {name: "RSSS HO II_local", member: "internal"}
+  - {name: "ddc1-fw01_local", member: "internal"}
+  - {name: "High Touch 0_remote", member: "HighTouch0"}
+  - {name: "RSSS HO II_remote", member: "RSSSHOII"}
+  - {name: "ddc1-fw01_remote", member: "ddc1-fw01"}
