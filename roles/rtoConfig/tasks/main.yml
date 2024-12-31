@@ -30,3 +30,13 @@
       member: 
         - name: "{{item.member}}"
   with_items: "{{addrGrp}}"
+
+- name: get interface info
+  fortinet.fortios.fortios_configuration_fact: 
+    formatters:
+      - name
+      - ip
+    selector: 'system_interface'
+  register: interface_facts
+
+- name: 
