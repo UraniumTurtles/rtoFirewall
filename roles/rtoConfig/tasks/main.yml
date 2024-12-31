@@ -39,4 +39,16 @@
     selector: 'system_interface'
   register: interface_facts
 
-- name: 
+- name: debug
+  ansible.builtin.debug:
+    msg: "{{ (interface_facts.meta.results | selectattr('ip', 'search', '192.168.1.99 255.255.255.0') | list | first).name }}"
+
+- name: change lan
+  fortios_system_interface:
+    vdom: "root"
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    system_interface:
+      name: "Internal"
+      ip: "192.168.1.72 255.255.255.0"
+#      allowaccess: "https,http,ssh,ping"

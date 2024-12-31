@@ -1,8 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # defaults file for roles/rtoConfig
-#hightouch0: "172.19.0.0/16"
-#RSSSHOII: "172.25.0.0/16"
 addrObject:
   - {name: "HighTouch0", address: "172.19.0.0/16", type: "ipmask"}
   - {name: "RSSSHOII", address: "172.25.0.0/16", type: "ipmask"}
