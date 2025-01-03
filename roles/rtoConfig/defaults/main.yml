@@ -5,6 +5,7 @@ addrObject:
   - {name: "HighTouch0", address: "172.19.0.0/16", type: "ipmask"}
   - {name: "RSSSHOII", address: "172.25.0.0/16", type: "ipmask"}
   - {name: "ddc1-fw01", address: "172.28.0.0/29", type: "ipmask"}
+  - {name: "internal", address: "{{lan}}", type: "ipmask" }
 
 addrGrp:
   - {name: "High Touch 0_local", member: "internal"}

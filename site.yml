@@ -1,6 +1,6 @@
 ---
 - name: config RTO firewall
-  hosts: test
+  hosts: nrp
   gather_facts: false 
   connection: httpapi
   collections: fortinet.fortios

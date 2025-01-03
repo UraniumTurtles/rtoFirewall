@@ -1,15 +1,68 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # tasks file for roles/rtoConfig
-- name: local object 
-  fortinet.fortios.fortios_firewall_address:
-    state: "present"
+- name: get interface info
+  fortinet.fortios.fortios_configuration_fact: 
     access_token: "{{ fortios_access_token }}"
-    firewall_address:
-      name: "internal"
-      type: "ipmask"
-      subnet: "{{lan}}"
+    formatters:
+      - name
+      - ip
+    selector: 'system_interface'
+  register: interface_facts
 
+- name: set fact
+  set_fact:
+    serial: "{{interface_facts.meta.serial}}"
+
+- name: show facts 
+  ansible.builtin.debug:
+    msg: "{{interface_facts.meta.serial}}"
+
+- name: remove default internal policy 
+  fortinet.fortios.fortios_firewall_policy:
+    access_token: "{{ fortios_access_token }}"
+    state: "absent"
+    firewall_policy:
+      id: "1"
+
+- name: remove guest wifi policy 
+  fortinet.fortios.fortios_firewall_policy:
+    access_token: "{{ fortios_access_token }}"
+    state: "absent"
+    firewall_policy:
+      id: "2"
+  when: serial is search("FWF40") or serial is search("FWF60")
+
+- name: remove guest wifi 
+  fortios_wireless_controller_vap:
+    state: "absent"
+    access_token: "{{ fortios_access_token }}"
+    wireless_controller_vap:
+      name: "guestwifi"
+  when: serial is search("FWF40") or serial is search("FWF60")
+
+- name: remove internal
+  fortinet.fortios.fortios_system_interface:
+    state: "absent"
+    access_token: "{{ fortios_access_token }}"
+    system_interface:
+      name: "{{ (interface_facts.meta.results | selectattr('ip', 'search', '192.168.1.99 255.255.255.0') | list | first).name }}"
+
+- name: remove fortilink
+  fortinet.fortios.fortios_system_interface:
+    state: "absent"
+    access_token: "{{ fortios_access_token }}"
+    system_interface:
+      name: "fortilink"
+
+- name: create lan
+  fortinet.fortios.fortios_system_interface:
+    state: "absent"
+    access_token: "{{ fortios_access_token }}"
+    system_interface:
+      name: "internal"
+
+#create address objects
 - name: vpn address objects
   fortinet.fortios.fortios_firewall_address:
     state: "present"
@@ -21,6 +74,7 @@
       allow_routing: "enable"
   with_items: "{{addrObject}}"
 
+#create address groups
 - name: address groups
   fortinet.fortios.fortios_firewall_addrgrp:
     state: "present"
@@ -31,24 +85,30 @@
         - name: "{{item.member}}"
   with_items: "{{addrGrp}}"
 
-- name: get interface info
-  fortinet.fortios.fortios_configuration_fact: 
-    formatters:
-      - name
-      - ip
-    selector: 'system_interface'
-  register: interface_facts
-
-- name: debug
-  ansible.builtin.debug:
-    msg: "{{ (interface_facts.meta.results | selectattr('ip', 'search', '192.168.1.99 255.255.255.0') | list | first).name }}"
-
-- name: change lan
-  fortios_system_interface:
-    vdom: "root"
-    state: "present"
+- name: initial sdwan 
+  fortinet.fortios.fortios_system_sdwan:
     access_token: "{{ fortios_access_token }}"
-    system_interface:
-      name: "Internal"
-      ip: "192.168.1.72 255.255.255.0"
-#      allowaccess: "https,http,ssh,ping"
+    system_sdwan:
+      members:
+        -
+          seq_num: "0"
+          interface: "a"
+          cost: "5"
+        -
+          seq_num: "0"
+          interface: "wan"
+  when: serial is search("FWF40") or serial is search("FGT40")
+
+- name: initial sdwan 
+  fortinet.fortios.fortios_system_sdwan:
+    access_token: "{{ fortios_access_token }}"
+    system_sdwan:
+      members:
+        -
+          seq_num: "0"
+          interface: "wan2"
+          cost: "5"
+        -
+          seq_num: "0"
+          interface: "dmz"
+  when: serial is search("FWF60") or serial is search("FGT60")

@@ -1,0 +1,22 @@
+- hosts: nrp
+  collections:
+    - fortinet.fortios
+  connection: httpapi
+  gather_facts: no
+  tasks:
+    - name: get interface info
+      fortinet.fortios.fortios_configuration_fact: 
+        access_token: "{{ fortios_access_token }}"
+        formatters:
+          - name
+          - ip
+        selector: 'system_interface'
+      register: interface_facts
+    - name: set fact
+      set_fact:
+        serial: "{{interface_facts.meta.serial}}"
+
+    - name: debug
+      ansible.builtin.debug:
+        msg: the serial {{serial}} is a 40 series
+      when: serial is search("FWF40")
