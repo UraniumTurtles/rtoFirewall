@@ -9,44 +9,44 @@
         access_token: "{{ fortios_access_token }}"
         system_sdwan: 
           members:
-              -
-                seq_num: "0"
-                interface: "wan"
-                cost: "0"           
-              -
-                seq_num: "0"
-                interface: "a"
-                cost: "5"
-              -
-                seq_num: "0"
-                interface: "High Touch 0_1"
-                cost: "10"
-                source: "{{ lan_gw }}"
-              -
-                seq_num: "0"
-                interface: "High Touch 0_2"
-                cost: "20"
-                source: "{{ lan_gw }}" 
-              -
-                seq_num: "0"
-                interface: "RSSSHOII_1"
-                cost: "10"
-                source: "{{ lan_gw }}"   
-              -
-                seq_num: "0"
-                interface: "RSSSHOII_2"
-                cost: "20"
-                source: "{{ lan_gw }}"
-              -
-                seq_num: "0"
-                interface: "ddc1-fw01_1"
-                cost: "10"
-                source: "{{ lan_gw }}" 
-              -
-                seq_num: "0"
-                interface: "ddc1-fw01_2"
-                cost: "20"
-                source: "{{ lan_gw }}"     
+            -
+              seq_num: "0"
+              interface: "wan"
+              cost: "0"           
+            -
+              seq_num: "0"
+              interface: "a"
+              cost: "5"
+            -
+              seq_num: "0"
+              interface: "High Touch 0_1"
+              cost: "10"
+              source: "{{ lan_gw }}"
+            -
+              seq_num: "0"
+              interface: "High Touch 0_2"
+              cost: "20"
+              source: "{{ lan_gw }}" 
+            -
+              seq_num: "0"
+              interface: "RSSSHOII_1"
+              cost: "10"
+              source: "{{ lan_gw }}"   
+            -
+              seq_num: "0"
+              interface: "RSSSHOII_2"
+              cost: "20"
+              source: "{{ lan_gw }}"
+            -
+              seq_num: "0"
+              interface: "ddc1-fw01_1"
+              cost: "10"
+              source: "{{ lan_gw }}" 
+            -
+              seq_num: "0"
+              interface: "ddc1-fw01_2"
+              cost: "20"
+              source: "{{ lan_gw }}"     
           health_check:
           -
             name: "WAN_Failover"
@@ -118,11 +118,11 @@
                 name: "High Touch 0_remote"
               src: 
               -
-                name: "High Touch 0_remote"
+                name: "High Touch 0_local"
               sla:
               -
                 health_check: "HighTouch0_Failover"
-                id: "1"
+                id: "0"
               priority_members:
               -
                 seq_num: "3"
@@ -141,7 +141,7 @@
               sla:
               -
                 health_check: "RSSSHOII_Failover"
-                id: "1"
+                id: "0"
               priority_members:
               -
                 seq_num: "5"
@@ -155,12 +155,12 @@
               -
                 name: "ddc1-fw01_remote"
               src: 
-              -
-                name: "ddc1-fw01_local"
+                -
+                  name: "ddc1-fw01_local"
               sla:
               -
                 health_check: "ddc1_fw01_Failover"
-                id: "1"
+                id: "0"
               priority_members:
               -
                 seq_num: "7"
@@ -179,7 +179,7 @@
               sla:
               -
                 health_check: "WAN_Failover"
-                id: "1"
+                id: "0"
               priority_members:
               -
                 seq_num: "1"

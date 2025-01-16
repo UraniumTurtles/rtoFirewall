@@ -26,9 +26,9 @@ vpnPhase1Main:
   - {name: ddc1-fw01_1, remote_gw: "162.250.227.2", peerid: "HighTouch0"}
 
 vpnPhase1Failover:
-  - {name: High Touch 0_2, remote_gw: "64.66.99.129", peerid: "HighTouch0"}
-  - {name: RSSSHOII_2, remote_gw: "12.197.198.2", peerid: "RSSSHOII"}
-  - {name: ddc1-fw01_2, remote_gw: "162.250.227.2", peerid: "HighTouch0"}
+  - {name: High Touch 0_2, monitor: "High Touch 0_1", remote_gw: "64.66.99.129", peerid: "HighTouch0"}
+  - {name: RSSSHOII_2, monitor: "RSSSHOII_1", remote_gw: "12.197.198.2", peerid: "RSSSHOII"}
+  - {name: ddc1-fw01_2, monitor: "ddc1-fw01_1", remote_gw: "162.250.227.2", peerid: "HighTouch0"}
 
 vpnPhase2:
   - {name: "High Touch 0_1", phase1: "High Touch 0_1", source: "High Touch 0_local", remote: "High Touch 0_remote"}

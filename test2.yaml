@@ -1,0 +1,18 @@
+- hosts: prod
+  collections:
+    - fortinet.fortios
+  connection: httpapi
+  gather_facts: no
+  tasks:
+    - name: initial sdwan non wifi
+      fortinet.fortios.fortios_system_sdwan:
+        access_token: "{{ fortios_access_token }}"
+        system_sdwan:
+          members:
+            -
+              seq_num: "0"
+              interface: "a"
+              cost: "5"
+            -
+              seq_num: "0"
+              interface: "wan"
