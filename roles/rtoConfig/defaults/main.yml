@@ -4,7 +4,7 @@
 addrObject:
   - {name: "HighTouch0", address: "172.19.0.0/16", type: "ipmask"}
   - {name: "RSSSHOII", address: "172.25.0.0/16", type: "ipmask"}
-  - {name: "ddc1-fw01", address: "172.28.0.0/29", type: "ipmask"}
+  - {name: "ddc1-fw01", address: "{{ddc_vlan}}", type: "ipmask"}
   - {name: "internal", address: "{{lan}}", type: "ipmask" }
 
 addrGrp:
@@ -14,3 +14,35 @@ addrGrp:
   - {name: "High Touch 0_remote", member: "HighTouch0"}
   - {name: "RSSS HO II_remote", member: "RSSSHOII"}
   - {name: "ddc1-fw01_remote", member: "ddc1-fw01"}
+
+dhcpServers:
+  - {id: "1"}
+  - {id: "2"}
+  - {id: "3"}
+
+vpnPhase1Main:
+  - {name: High Touch 0_1, remote_gw: "64.66.99.129", peerid: "HighTouch0"}
+  - {name: RSSSHOII_1, remote_gw: "12.197.198.2", peerid: "RSSSHOII"}
+  - {name: ddc1-fw01_1, remote_gw: "162.250.227.2", peerid: "HighTouch0"}
+
+vpnPhase1Failover:
+  - {name: High Touch 0_2, remote_gw: "64.66.99.129", peerid: "HighTouch0"}
+  - {name: RSSSHOII_2, remote_gw: "12.197.198.2", peerid: "RSSSHOII"}
+  - {name: ddc1-fw01_2, remote_gw: "162.250.227.2", peerid: "HighTouch0"}
+
+vpnPhase2:
+  - {name: "High Touch 0_1", phase1: "High Touch 0_1", source: "High Touch 0_local", remote: "High Touch 0_remote"}
+  - {name: "High Touch 0_2", phase1: "High Touch 0_2", source: "High Touch 0_local", remote: "High Touch 0_remote"}
+  - {name: "RSSSHOII_1", phase1: "RSSSHOII_1", source: "RSSS HO II_local", remote: "RSSS HO II_remote"}
+  - {name: "RSSSHOII_2", phase1: "RSSSHOII_2", source: "RSSS HO II_local", remote: "RSSS HO II_remote"}
+  - {name: "ddc1-fw01_1", phase1: "ddc1-fw01_1", source: "ddc1-fw01_local", remote: "ddc1-fw01_remote"}
+  - {name: "ddc1-fw01_2", phase1: "ddc1-fw01_2", source: "ddc1-fw01_local", remote: "ddc1-fw01_remote"}
+
+policy:
+  - {name: "vpn_High Touch 0_local", srcint: "internal", dstint: "virtual-wan-link", srcaddr: "High Touch 0_local", dstaddr: "High Touch 0_remote", nat: "disable"}
+  - {name: "vpn_RSSS HO II_local", srcint: "internal", dstint: "virtual-wan-link", srcaddr: "RSSS HO II_local", dstaddr: "RSSS HO II_remote", nat: "disable"}
+  - {name: "vpn_ddc1-fw01_local", srcint: "internal", dstint: "virtual-wan-link", srcaddr: "ddc1-fw01_local", dstaddr: "ddc1-fw01_remote", nat: "disable"}
+  - {name: "internet_egress", srcint: "internal", dstint: "virtual-wan-link", srcaddr: "internal", dstaddr: "all", nat: "enable"}
+  - {name: "vpn_High Touch 0_remote", srcint: "virtual-wan-link", dstint: "internal", srcaddr: "High Touch 0_remote", dstaddr: "High Touch 0_local", nat: "disable"}
+  - {name: "vpn_RSSS HO II_remote", srcint: "virtual-wan-link", dstint: "internal", srcaddr: "RSSS HO II_remote", dstaddr: "RSSS HO II_local", nat: "disable"}
+  - {name: "vpn_ddc1-fw01_remote", srcint: "virtual-wan-link", dstint: "internal", srcaddr: "ddc1-fw01_remote", dstaddr: "ddc1-fw01_local", nat: "disable"}

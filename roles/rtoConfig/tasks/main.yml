@@ -23,30 +23,46 @@
     access_token: "{{ fortios_access_token }}"
     state: "absent"
     firewall_policy:
-      id: "1"
+      policyid: "1"
 
 - name: remove guest wifi policy 
   fortinet.fortios.fortios_firewall_policy:
     access_token: "{{ fortios_access_token }}"
     state: "absent"
     firewall_policy:
-      id: "2"
+      policyid: "2"
   when: serial is search("FWF40") or serial is search("FWF60")
 
-- name: remove guest wifi 
-  fortios_wireless_controller_vap:
+- name: remove internal object
+  fortinet.fortios.fortios_firewall_address:
     state: "absent"
     access_token: "{{ fortios_access_token }}"
-    wireless_controller_vap:
-      name: "guestwifi"
-  when: serial is search("FWF40") or serial is search("FWF60")
+    firewall_address:
+      name: "internal"
 
-- name: remove internal
-  fortinet.fortios.fortios_system_interface:
+- name: remove DHCP
+  fortinet.fortios.fortios_system_dhcp_server:
     state: "absent"
     access_token: "{{ fortios_access_token }}"
-    system_interface:
+    system_dhcp_server:
+      id: "{{item.id}}"
+  with_items: "{{dhcpServers}}"
+
+- name: remove fortilink from 
+  fortinet.fortios.fortios_system_ntp:
+    access_token: "{{ fortios_access_token }}"
+    system_ntp:
+      server_mode: "disable"
+
+- name: remove wifi from internal
+  fortinet.fortios.fortios_system_switch_interface:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    system_switch_interface:
       name: "{{ (interface_facts.meta.results | selectattr('ip', 'search', '192.168.1.99 255.255.255.0') | list | first).name }}"
+      member: 
+        - interface_name: "lan"
+#      ip: "{{lan}}"
 
 - name: remove fortilink
   fortinet.fortios.fortios_system_interface:
@@ -54,13 +70,6 @@
     access_token: "{{ fortios_access_token }}"
     system_interface:
       name: "fortilink"
-
-- name: create lan
-  fortinet.fortios.fortios_system_interface:
-    state: "absent"
-    access_token: "{{ fortios_access_token }}"
-    system_interface:
-      name: "internal"
 
 #create address objects
 - name: vpn address objects
@@ -85,7 +94,7 @@
         - name: "{{item.member}}"
   with_items: "{{addrGrp}}"
 
-- name: initial sdwan 
+- name: initial sdwan non wifi
   fortinet.fortios.fortios_system_sdwan:
     access_token: "{{ fortios_access_token }}"
     system_sdwan:
@@ -99,7 +108,7 @@
           interface: "wan"
   when: serial is search("FWF40") or serial is search("FGT40")
 
-- name: initial sdwan 
+- name: initial sdwan wifi
   fortinet.fortios.fortios_system_sdwan:
     access_token: "{{ fortios_access_token }}"
     system_sdwan:
@@ -112,3 +121,121 @@
           seq_num: "0"
           interface: "dmz"
   when: serial is search("FWF60") or serial is search("FGT60")
+
+- name: VPN phase 1 main 40 series
+  fortinet.fortios.fortios_vpn_ipsec_phase1_interface:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    vpn_ipsec_phase1_interface:
+      name: "{{item.name}}"
+      type: "static"
+      remote_gw: "{{item.remote_gw}}"
+      interface: "wan"
+      keylife: "28800"
+      mode: "aggressive"
+      peertype: "one"
+      net_device: "disable"
+      proposal: "aes256-sha1"
+      localid: "{{clientID}}{{store}}-rto"
+      dpd: "on-idle"
+      dhgrp: "2"
+      peerid: "{{item.peerid}}"
+      psksecret: "{{pksecret}}"
+      dpd_retryinterval: "60"
+  with_items: "{{vpnPhase1Main}}"
+  when: serial is search("FWF40") or serial is search("FGT40")
+
+- name: VPN phase 1 main 60 series
+  fortinet.fortios.fortios_vpn_ipsec_phase1_interface:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    vpn_ipsec_phase1_interface:
+      name: "{{item.name}}"
+      type: "static"
+      remote_gw: "{{item.remote_gw}}"
+      interface: "wan1"
+      keylife: "28800"
+      mode: "aggressive"
+      peertype: "one"
+      net_device: "disable"
+      proposal: "aes256-sha1"
+      localid: "{{clientID}}{{store}}-rto"
+      dpd: "on-idle"
+      dhgrp: "2"
+      peerid: "{{item.peerid}}"
+      psksecret: "{{pksecret}}"
+      dpd_retryinterval: "60"
+  with_items: "{{vpnPhase1Main}}"
+  when: serial is search("FWF60") or serial is search("FGT60")
+
+- name: VPN phase 1 failover 40 series
+  fortinet.fortios.fortios_vpn_ipsec_phase1_interface:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    vpn_ipsec_phase1_interface:
+      name: "{{item.name}}"
+      type: "static"
+      remote_gw: "{{item.remote_gw}}"
+      interface: "a"
+      keylife: "28800"
+      mode: "aggressive"
+      peertype: "one"
+      net_device: "disable"
+      proposal: "aes256-sha1"
+      localid: "{{clientID}}{{store}}-rto"
+      dpd: "on-idle"
+      dhgrp: "2"
+      peerid: "{{item.peerid}}"
+      psksecret: "{{pksecret}}"
+      dpd_retryinterval: "60"
+  with_items: "{{vpnPhase1Failover}}"
+  when: serial is search("FWF40") or serial is search("FGT40")
+
+- name: VPN phase 2 
+  fortinet.fortios.fortios_vpn_ipsec_phase2_interface:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    vpn_ipsec_phase2_interface:
+      name: "{{item.name}}"
+      phase1name: "{{item.phase1}}"
+      proposal: "aes256-sha1"
+      pfs: "disable"
+      keepalive: "enable"
+      src_addr_type: "name"
+      dst_addr_type: "name"
+      src_name: "{{item.source}}"
+      dst_name: "{{item.remote}}"
+      keylifeseconds: "28800"
+  with_items: "{{vpnPhase2}}"
+
+- name: sdwan 40 Series
+  fortinet.fortios.fortios_system_sdwan:
+  state: "present"
+  access_token: "{{ fortios_access_token }}"
+  system_sdwan:
+
+- name: Firewall Policies
+  fortios_firewall_policy:
+    access_token: "{{ fortios_access_token }}"
+    state: "present"
+    firewall_policy:
+      policyid: "0"
+      name: "{{item.name}}"
+      srcintf:
+      -
+        name: "{{item.srcint}}"
+      dstintf:
+      -
+        name: "{{item.dstint}}"
+      srcaddr:
+      -
+        name: "{{item.srcaddr}}"
+      dstaddr:
+      -
+        name: "{{item.dstaddr}}"
+      action: "accept"
+      schedule: "always"
+      service:
+      -
+        name: "ALL"
+      nat: "{{item.nat}}"
