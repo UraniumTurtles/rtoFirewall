@@ -210,9 +210,188 @@
 
 - name: sdwan 40 Series
   fortinet.fortios.fortios_system_sdwan:
-  state: "present"
-  access_token: "{{ fortios_access_token }}"
-  system_sdwan:
+    state: "present"
+    access_token: "{{ fortios_access_token }}"
+    system_sdwan: 
+      members:
+          -
+            seq_num: "0"
+            interface: "wan"
+            cost: "0"           
+          -
+            seq_num: "0"
+            interface: "a"
+            cost: "5"
+          -
+            seq_num: "0"
+            interface: "High Touch 0_1"
+            cost: "10"
+            source: "{{ lan_gw }}"
+          -
+            seq_num: "0"
+            interface: "High Touch 0_2"
+            cost: "20"
+            source: "{{ lan_gw }}" 
+          -
+            seq_num: "0"
+            interface: "RSSSHOII_1"
+            cost: "10"
+            source: "{{ lan_gw }}"   
+          -
+            seq_num: "0"
+            interface: "RSSSHOII_2"
+            cost: "20"
+            source: "{{ lan_gw }}"
+          -
+            seq_num: "0"
+            interface: "ddc1-fw01_1"
+            cost: "10"
+            source: "{{ lan_gw }}" 
+          -
+            seq_num: "0"
+            interface: "ddc1-fw01_2"
+            cost: "20"
+            source: "{{ lan_gw }}"     
+      health_check:
+      -
+        name: "WAN_Failover"
+        server: "8.8.8.8"
+        interval: "5000"
+        members:
+          -
+            seq_num: "1"
+          -
+            seq_num: "2"
+        sla:
+          -
+            id: "1"
+            latency_threshold: "500"
+            jitter_threshold: "50"
+            packetloss_threshold: "5" 
+      -
+        name: "HighTouch0_Failover"
+        server: "172.19.0.1"
+        interval: "5000"
+        members:
+          -
+            seq_num: "3"
+          -
+            seq_num: "4"
+        sla:
+          -
+            id: "1"
+            latency_threshold: "500"
+            jitter_threshold: "50"
+            packetloss_threshold: "5"
+      -
+        name: "RSSSHOII_Failover"
+        server: "172.25.1.1"
+        interval: "5000"
+        members:
+          -
+            seq_num: "5"
+          -
+            seq_num: "6"
+        sla:
+          -
+            id: "1"
+            latency_threshold: "500"
+            jitter_threshold: "50"
+            packetloss_threshold: "5"
+      -
+        name: "ddc1_fw01_Failover"
+        server: "{{ cynergi_server }}"
+        interval: "5000"
+        members:
+          -
+            seq_num: "7"
+          -
+            seq_num: "8"
+        sla:
+          -
+            id: "1"
+            latency_threshold: "500"
+            jitter_threshold: "50"
+            packetloss_threshold: "5"
+      service: 
+        -
+          name: "HighTouch0_Access"
+          mode: "sla"
+          id: "0"
+          dst:
+          -
+            name: "High Touch 0_remote"
+          src: 
+          -
+            name: "High Touch 0_remote"
+          sla:
+          -
+            health_check: "HighTouch0_Failover"
+            id: "1"
+          priority_members:
+          -
+            seq_num: "3"
+          -
+            seq_num: "4"
+        -
+          name: "RSSSHOII_Access"
+          mode: "sla"
+          id: "0"
+          dst:
+          -
+            name: "RSSS HO II_remote"
+          src: 
+          -
+            name: "RSSS HO II_local"
+          sla:
+          -
+            health_check: "RSSSHOII_Failover"
+            id: "1"
+          priority_members:
+          -
+            seq_num: "5"
+          -
+            seq_num: "6"
+        -
+          name: "ddc1_fw01_Access"
+          mode: "sla"
+          id: "0"
+          dst:
+          -
+            name: "ddc1-fw01_remote"
+          src: 
+          -
+            name: "ddc1-fw01_local"
+          sla:
+          -
+            health_check: "ddc1_fw01_Failover"
+            id: "1"
+          priority_members:
+          -
+            seq_num: "7"
+          -
+            seq_num: "8"
+        -
+          name: "Internet_Access"
+          mode: "sla"
+          id: "0"
+          dst:
+          -
+            name: "all"
+          src: 
+          -
+            name: "all"
+          sla:
+          -
+            health_check: "WAN_Failover"
+            id: "1"
+          priority_members:
+          -
+            seq_num: "1"
+          -
+            seq_num: "2"
+      status: "enable"             
+  when: serial is search("FWF40") or serial is search("FGT40")
 
 - name: Firewall Policies
   fortinet.fortios.fortios_firewall_policy:
@@ -240,6 +419,7 @@
         name: "ALL"
       nat: "{{item.nat}}"
 
+<<<<<<< HEAD
 - name: Set Route
   fortinet.fortios.fortios_router_static:
     access_token: "{{ fortios_access_token }}"
@@ -252,3 +432,13 @@
       sdwan_zone:
         -
           name: "virtual-wan-link"
+=======
+- name: Set System Settings
+  fortios_system_global:
+    access_token: "{{ fortios_access_token }}"
+    system_global: 
+      hostname: "{{clientID}}{{store}}-rto"
+      admin_port: "8080"
+      admin_sport: "10443"
+      admintimeout: "30"
+>>>>>>> af0ea0b (v2)
