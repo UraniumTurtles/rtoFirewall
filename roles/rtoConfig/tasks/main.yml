@@ -210,7 +210,6 @@
 
 - name: sdwan 40 Series
   fortinet.fortios.fortios_system_sdwan:
-    state: "present"
     access_token: "{{ fortios_access_token }}"
     system_sdwan: 
       members:
@@ -419,7 +418,6 @@
         name: "ALL"
       nat: "{{item.nat}}"
 
-<<<<<<< HEAD
 - name: Set Route
   fortinet.fortios.fortios_router_static:
     access_token: "{{ fortios_access_token }}"
@@ -432,7 +430,7 @@
       sdwan_zone:
         -
           name: "virtual-wan-link"
-=======
+
 - name: Set System Settings
   fortios_system_global:
     access_token: "{{ fortios_access_token }}"
@@ -441,4 +439,3 @@
       admin_port: "8080"
       admin_sport: "10443"
       admintimeout: "30"
->>>>>>> af0ea0b (v2)
