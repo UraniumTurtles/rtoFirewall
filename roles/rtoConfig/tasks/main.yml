@@ -215,7 +215,7 @@
   system_sdwan:
 
 - name: Firewall Policies
-  fortios_firewall_policy:
+  fortinet.fortios.fortios_firewall_policy:
     access_token: "{{ fortios_access_token }}"
     state: "present"
     firewall_policy:
@@ -239,3 +239,16 @@
       -
         name: "ALL"
       nat: "{{item.nat}}"
+
+- name: Set Route
+  fortinet.fortios.fortios_router_static:
+    access_token: "{{ fortios_access_token }}"
+    state: "present"
+    router_static:
+      distance: "1"
+      dst: "0.0.0.0/0.0.0.0"
+      dynamic_gateway: "enable"
+      gateway: "0.0.0.0"
+      sdwan_zone:
+        -
+          name: "virtual-wan-link"
